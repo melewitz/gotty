@@ -95,7 +95,18 @@ func main() {
 		ctx, cancel := context.WithCancel(context.Background())
 		gCtx, gCancel := context.WithCancel(context.Background())
 
-		log.Printf("GoTTY is starting with command: %s", strings.Join(args, " "))
+                // Don't print password in log output
+                // GoTTY is starting with command: sshpass -p ThePassword ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null iensupport@166.32.239.178 -p 22
+                var sanitized_cmd = make([]string, len(args))
+                copy(sanitized_cmd, args)
+                for i, value := range(args) {
+                    if value == "-p" && i < len(args)-1 {
+                        sanitized_cmd[i+1] = "<hidden-password>"
+                        break
+                    }
+                }
+
+		log.Printf("GoTTY is starting with command: %s", strings.Join(sanitized_cmd, " "))
 
 		errs := make(chan error, 1)
 		go func() {
